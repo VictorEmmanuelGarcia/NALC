@@ -13,7 +13,7 @@ function Login() {
           <h1>
             <strong>
                 Narrative Association for Linked Content
-                <br /> for IPAMS
+                for IPAMS
             </strong>
             <br />
             <small style={{ fontSize: '60%' }}>
