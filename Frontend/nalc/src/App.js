@@ -1,4 +1,4 @@
-import Login from './Screen/Login';
+import Login from './Screen/Login/Login';
 import Register from './Screen/Register/Register';
 
 function App() {
