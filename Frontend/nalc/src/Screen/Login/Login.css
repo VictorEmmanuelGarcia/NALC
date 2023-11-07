@@ -1,7 +1,7 @@
 .container-fluid {
     display: flex;
     height: 100vh;
-  }
+}
   
 .title {
     flex: 1;

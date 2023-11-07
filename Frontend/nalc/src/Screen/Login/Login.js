@@ -23,7 +23,7 @@ function Login() {
 
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid gx-0">
       <div className="title">
         <div className="row logo">
           <img src={nalcLogo} alt="NALC Logo" />
