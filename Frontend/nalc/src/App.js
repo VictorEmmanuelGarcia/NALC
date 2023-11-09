@@ -4,7 +4,9 @@ import Home from './Screen/Home/Home';
 
 function App() {
   return (
-    <Home/>
+    <div>
+      <Home/>
+    </div>
   );
 }
 
