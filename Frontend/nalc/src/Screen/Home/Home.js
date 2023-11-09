@@ -1,4 +1,4 @@
-import React , {useState} from 'react';
+import React , {useState , useEffect} from 'react';
 import axios from 'axios';
 import './Home.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -7,7 +7,9 @@ import { faPaperPlane , faPlus , faRightFromBracket} from '@fortawesome/free-sol
 function Home() {
     const [input, setInput] = useState('');
     const [conversation, setConversation] = useState([]);
-    const [chatName , setChatName] = useState('');
+    const [chatName , setChatName] = useState('');    
+    const [chats , setChats] = useState([]);
+    const reversedChats = chats.slice().reverse();
 
     const handleInputChange = (identifier) => (e) => {
       if (identifier === "input") {
@@ -18,34 +20,34 @@ function Home() {
       // Add more conditions for additional inputs
   };
 
-    const handleCreateChat = () => {
-      console.log(chatName);
-      axios.post('http://127.0.0.1:8000/api/threads/' , {
-        thread_name: chatName,
-      })
-      .then(function (response) {
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div class="toast-body">
-              New chat Created!
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-      })
-      .catch(function (error)  {
-        //handle error
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div class="toast-body">
-              Something went Wrong, Try Again Later!
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-        </div>
-        console.log(error);
-      });
+  const fetchChats = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/threads/');
+      setChats(response.data);
+      console.log(chats);
+    } catch (error) {
+      console.error('Error:', error);
     }
+  };
+
+  const handleCreateChat = async () => {
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
+        thread_name: chatName,
+      });
+
+      alert("Chat Created!");
+      setChatName('');
+      fetchChats(); // Refresh the chat list after creating a new chat
+    } catch (error) {
+      alert("Something Went Wrong, Try Again!");
+      console.error('Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchChats(); // Fetch chats on component mount
+  }, []);
 
     const handleSendMessage = () => {
       if (input.trim() === '') {
@@ -71,7 +73,6 @@ function Home() {
           });
       }
     };
-    
 
   return (
     <div className="container-fluid gx-0">
@@ -86,7 +87,7 @@ function Home() {
             <div class="modal-body">
               <form class="row g-3 needs-validation" novalidate>
                 <div class="col">
-                  <input type="text" class="form-control" id="validationCustom03" placeholder='Chat Name'required onChange={handleInputChange("chat")}/>
+                  <input type="text" class="form-control" id="validationCustom03" value={chatName} placeholder='Chat Name'required onChange={handleInputChange("chat")}/>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick={handleCreateChat}>Create</button>
               </form>
@@ -94,6 +95,7 @@ function Home() {
           </div>
         </div>
       </div>
+      {/* Side Bar */}
       <div className="chat-history">
         <button type="button" class="btn btn-outline-light newChatBtn" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
             <FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />
@@ -103,7 +105,24 @@ function Home() {
             <FontAwesomeIcon icon={faRightFromBracket} style={{color: "#ffffff",}} />
             <span style={{ marginLeft: "5px" , color: "white"}}>Log Out</span>
         </button>
+        <br/>
+        <br/>
+        <div style={{ overflowY: 'scroll', height: '600px' }}>
+          {reversedChats.map(chat => (
+            <div key={chat.thread_id}>
+              <a
+                className="btn btn-warning"
+                role="button"
+                aria-disabled="true"
+                style={{ width: '100%', display: 'block', marginBottom: '10px' }}
+              >
+                {chat.thread_name}
+              </a>
+            </div>
+          ))}
+        </div>
       </div>
+      {/* Convo Page */}
       <div className="chat-input">
         <div className='convo'>
           <div>
