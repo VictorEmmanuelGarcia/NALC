@@ -30,6 +30,8 @@ llm = OpenAI(temperature=0, verbose=True)
 
 db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
 
+
+# Admin views
 def upload_and_replace_data(request):
     if 'file' in request.FILES:
         uploaded_file = request.FILES['file']
@@ -115,6 +117,13 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
         self.perform_destroy(instance)
         return Response({"message": "Thread deleted"}, status=status.HTTP_204_NO_CONTENT)
 
+class ThreadListView(generics.ListAPIView):
+    serializer_class = ThreadSerializer
+
+    def get_queryset(self):
+        # Retrieve all threads
+        queryset = Thread.objects.all()
+        return queryset
 
 # Message View (Create and Read)
 class MessageCreateView(generics.CreateAPIView):
