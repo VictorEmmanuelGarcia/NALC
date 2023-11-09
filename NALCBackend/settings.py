@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Backend',
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = 'Backend.User'
@@ -50,6 +51,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React development server
 ]
 
 ROOT_URLCONF = 'NALCBackend.urls'
@@ -79,7 +85,7 @@ WSGI_APPLICATION = 'NALCBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nalc-softeng',
+        'NAME': 'ipams',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
