@@ -30,6 +30,8 @@ llm = OpenAI(temperature=0, verbose=True)
 
 db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
 
+
+# Admin views
 def upload_and_replace_data(request):
     if 'file' in request.FILES:
         uploaded_file = request.FILES['file']
