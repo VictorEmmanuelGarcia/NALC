@@ -14,7 +14,9 @@ function Home() {
     const reversedChats = chats.slice().reverse();
     const [editModes, setEditModes] = useState(Array(reversedChats.length).fill(false));
     const [tempName, setTempName] = useState('');
-    const [selectedThread, setSelectedThread] = useState(null); // Track the selected thread
+    const [selectedThread, setSelectedThread] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [chatCreated, setChatCreated] = useState(false);
 
     const handleInputChange = (identifier) => (e) => {
       if (identifier === "input") {
@@ -25,49 +27,70 @@ function Home() {
       // Add more conditions for additional inputs
   };
 
-  const fetchChats = async () => {
+  const fetchChatsAndData = async (id) => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/threads/');
-      setChats(response.data);
+      const responseChats = await axios.get('http://127.0.0.1:8000/api/threads/');
+      setChats(responseChats.data);
+  
+      if (id !== undefined) {
+        fetchDataAndMsg(id);
+      }
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+  const fetchChats = async () => {
+    await fetchChatsAndData();
+  };
 
-  const fetchMsg = async () => {
+
+  const fetchDataAndMsg = async (id) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/messages/thread/${threadId}/`);
-      const messages = response.data.map(message => {
-        const messageText = JSON.parse(message.message_text);
-        const user = messageText.query; // Extracting 'query' from JSON string
-        let text = messageText.response; // Extracting 'result' from JSON string
+      const responseThread = await axios.get(`http://127.0.0.1:8000/api/threads/${id}/`);
+      const responseMsg = await axios.get(`http://127.0.0.1:8000/api/messages/thread/${id}/`);
   
-        // Assuming the text is a research paper string, split it into an array
-        // if (text) {
-        //   text = text.split('\\n').filter(Boolean);
-        // }
+      const messages = responseMsg.data.map(message => {
+        const messageText = JSON.parse(message.message_text);
+        const user = messageText.query;
+        let text = messageText.response;
   
         return {
           user,
           text,
         };
       });
+  
       setChatMsg(messages);
+      setSelectedThread(responseThread.data.thread_name);
+      setThreadId(id);
     } catch (error) {
-      console.error('Error:', error);
+      console.error(error);
     }
   };
-  
-  const handleCreateChat = async () => {
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
-        thread_name: chatName,
-      });
 
-      alert("Chat Created!");
-      setChatName('');
+  const fetchData = async (id) => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/threads/${id}/`);
+      fetchDataAndMsg(id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleCreateChat = async (name) => {
+    try {
+      const nameToUse = chatName !== '' ? chatName : name;
+      setChatName(nameToUse);
+      const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
+        thread_name: nameToUse,
+      });
+      setChatName('');   
       fetchChats(); // Refresh the chat list after creating a new chat
+      fetchData(response.data.data.thread_id);
+      const newThreadId = response.data.data.thread_id;
+      setThreadId(newThreadId);
+      setChatCreated(true);
     } catch (error) {
       alert("Something Went Wrong, Try Again!");
       console.error('Error:', error);
@@ -76,12 +99,7 @@ function Home() {
 
   const handleChat = async (id) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/threads/${id}/`);
-      setThreadId(id, () => {
-        fetchMsg();
-      });      
-      setSelectedThread(threadId)
-      console.log(response.data);
+      fetchData(id);
     } catch (error) {
       console.error(error);
     }
@@ -124,39 +142,47 @@ function Home() {
     setEditModes(newEditModes);
   };
   
-  useEffect(() => {
-    if (threadId !== null) {
-      fetchMsg();
-    }
+  
+  useEffect(() => {  
+      fetchData(threadId);
   }, [threadId]);
 
   useEffect(() => {
     fetchChats(); // Fetch chats on component mount
   }, []);
 
-  // useEffect(() => {
-  //   fetchMsg();
-  // }, []);
+  const handleSendMessage = async () => {
+    if (input.trim() === '') {
+      // Display error or handle accordingly
+    } else {
+      //Create a new Chat when no Chat is selected
+        setLoading(true);
 
-    const handleSendMessage = (id) => {
-      if (input.trim() === '') {
-        // Display error or handle accordingly
-      } else {
-        axios.post('http://127.0.0.1:8000/api/messages/create/', {
-          thread_id: threadId,
-          query: input,
-        })
-          .then(function (response) {
-            // Handle success
-            fetchMsg();
-            setInput('');
-          })
-          .catch(function (error) {
-            // Handle error
-            console.log(error);
+        try {  
+          if (!chatCreated) {
+            await handleCreateChat("New Chat");
+          }
+          // Send the message
+          fetchDataAndMsg();
+          await axios.post('http://127.0.0.1:8000/api/messages/create/', {
+            thread_id: threadId,
+            query: input,
           });
-      }
-    };
+    
+          // API call successful
+          fetchDataAndMsg(threadId);
+          setInput('');
+        } catch (error) {
+          // Handle error
+          alert("Something Went Wrong, Try Again!");
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+    }
+  };
+  
+  
 
   return (
     <div className="container-fluid gx-0">
@@ -171,7 +197,14 @@ function Home() {
             <div class="modal-body">
               <form class="row g-3 needs-validation">
                 <div class="col">
-                  <input type="text" class="form-control" id="validationCustom03" value={chatName} placeholder='Chat Name'required onChange={handleInputChange("chat")}/>
+                  <input type="text" class="form-control" id="validationCustom03" value={chatName} placeholder='Chat Name'required onChange={handleInputChange("chat")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleCreateChat();
+                      window.location.reload();
+                    }
+                }}/>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick={handleCreateChat}>Create</button>
               </form>
@@ -191,7 +224,7 @@ function Home() {
         </button>
         <br/>
         <br/>
-        <div style={{ overflowY: 'auto', height: '700px' }}>
+        <div style={{ overflowY: 'auto', height: '75%' }}>
         {reversedChats.map((chat, index) => (
           <div key={chat.thread_id} style={{ position: 'relative' }}>
             <button
@@ -234,7 +267,11 @@ function Home() {
       {/* Convo Page */}
       <div className="chat-input">
         <div className='convo'>
-          <div className = "convo-message" style={{ overflowY: 'auto', height: '700px', width: '1100px', alignItems: 'center' }}>
+          <div className = "convo-message" style={{ overflowY: 'auto', height: '75%', width: '1100px', alignItems: 'center' }}>
+            <div className='title'>
+              <h2>{selectedThread}</h2>
+            </div>
+            <br/>
             {chatMsg.map((message, index) => (
               <div key={index} style={{ marginBottom: '10px', padding: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', fontSize: '20px' }}>
                 <FontAwesomeIcon icon={faUser} style={{ color: "#000000", marginRight: '5px', textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)' }} /> : {message.user}<br />
@@ -252,6 +289,13 @@ function Home() {
           </div>
         </div>
         <div className='inputForm'>
+            {loading && 
+              <div>
+                <div class="spinner-border text-secondary" role="status">
+                </div>
+                <span>Analyzing...</span>
+              </div>    
+            }
             <div className="input-group mb-1">
                 <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" value={input} onChange={handleInputChange("input")}
                 onKeyDown={(e) => {
@@ -259,7 +303,7 @@ function Home() {
                       e.preventDefault();
                       handleSendMessage();
                     }
-                  }}/>
+                }}/>
                 <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={handleSendMessage}>
                     <FontAwesomeIcon icon={faPaperPlane} style={{color: "#841818",}} />
                 </button>
