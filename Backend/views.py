@@ -118,13 +118,16 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
         self.perform_destroy(instance)
         return Response({"message": "Thread deleted"}, status=status.HTTP_204_NO_CONTENT)
 
-class ThreadListView(generics.ListAPIView):
+class UserThreadListView(generics.ListAPIView):
     serializer_class = ThreadSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Retrieve all threads
-        queryset = Thread.objects.all()
+        # Retrieve the authenticated user based on the token
+        user = self.request.user
+        
+        # Filter threads associated with the authenticated user
+        queryset = Thread.objects.filter(user=user)
         return queryset
 
 class MessageCreateView(generics.CreateAPIView):
@@ -226,14 +229,6 @@ class UserLoginView(APIView):
         
         return Response(response_data, status=status.HTTP_200_OK)
 
-class UserDetailsWithThreadsView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        # Retrieve the authenticated user
-        return self.request.user
-
 class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -247,3 +242,10 @@ class UserUpdateView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserDetailsView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user 
