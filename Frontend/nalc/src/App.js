@@ -6,7 +6,7 @@ import AdminScreen from './Screen/Admin/AdminScreen';
 function App() {
   return (
     <div>
-      <AdminScreen/>
+      <Home/>
     </div>
   );
 }

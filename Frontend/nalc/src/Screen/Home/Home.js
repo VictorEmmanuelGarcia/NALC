@@ -38,7 +38,7 @@ function Home() {
       const messages = response.data.map(message => {
         const messageText = JSON.parse(message.message_text);
         const user = messageText.query; // Extracting 'query' from JSON string
-        let text = messageText.result; // Extracting 'result' from JSON string
+        let text = messageText.response; // Extracting 'result' from JSON string
   
         // Assuming the text is a research paper string, split it into an array
         if (text) {
