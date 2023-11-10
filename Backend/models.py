@@ -24,7 +24,7 @@ class CustomUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
     
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(blank=True, default='', unique=True , max_length=191)
+    email = models.EmailField(blank=True, default='', unique=True , max_length=30)
     name = models.CharField(max_length=255, blank=True, default='')
 
     is_active = models.BooleanField(default=True)
@@ -76,3 +76,4 @@ class Message(models.Model):
     message_id = models.AutoField(primary_key=True)
     thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
     message_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
