@@ -11,7 +11,7 @@ import json
 from .models import researchpaper, Thread, Message, User
 from .serializers import ThreadCreateSerializer
 from rest_framework import generics, status
-from .serializers import ThreadSerializer, MessageSerializer, UserCreateSerializer, UserLoginSerializer, UserSerializer
+from .serializers import ThreadSerializer, MessageSerializer, UserCreateSerializer, UserLoginSerializer, UserSerializer, UserUpdateSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -233,3 +233,17 @@ class UserDetailsWithThreadsView(generics.RetrieveAPIView):
     def get_object(self):
         # Retrieve the authenticated user
         return self.request.user
+
+class UserUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user  # Get the currently logged-in user
+
+        serializer = UserUpdateSerializer(instance=user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
