@@ -13,18 +13,12 @@ from .serializers import ThreadCreateSerializer
 from rest_framework import generics, status
 from .serializers import ThreadSerializer, MessageSerializer
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 os.environ["OPENAI_API_KEY"] = "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"
-# Replace the following with your MySQL connection details
-mysql_user = "root"
-mysql_password = ""
-mysql_host = "localhost"  # Typically "localhost" if it's on the same machine
-mysql_database = "ipams"
-
 # Create the SQLDatabase instance with the MySQL connection URI
-db = SQLDatabase.from_uri(f"mysql://{mysql_user}:{mysql_password}@{mysql_host}/{mysql_database}"
-                          ,include_tables=["search_researchpaper"],
-)
+db = SQLDatabase.from_uri(f"mysql://{settings.DATABASES['default']['USER']}:{settings.DATABASES['default']['PASSWORD']}@{settings.DATABASES['default']['HOST']}:{settings.DATABASES['default']['PORT']}/{settings.DATABASES['default']['NAME']}", include_tables=["backend_researchpaper"])
 
 llm = OpenAI(temperature=0, verbose=True)
 
@@ -32,6 +26,7 @@ db_chain = SQLDatabaseChain.from_llm(llm, db, verbose=True)
 
 
 # Admin views
+@csrf_exempt
 def upload_and_replace_data(request):
     if 'file' in request.FILES:
         uploaded_file = request.FILES['file']
