@@ -16,7 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 # Create the SQLDatabase instance with the MySQL connection URI
 db = SQLDatabase.from_uri(f"mysql://{settings.DATABASES['default']['USER']}:{settings.DATABASES['default']['PASSWORD']}@{settings.DATABASES['default']['HOST']}:{settings.DATABASES['default']['PORT']}/{settings.DATABASES['default']['NAME']}", include_tables=["backend_researchpaper"])
 
@@ -120,7 +120,6 @@ class ThreadListView(generics.ListAPIView):
         queryset = Thread.objects.all()
         return queryset
 
-# Message View (Create and Read)
 class MessageCreateView(generics.CreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
@@ -131,19 +130,32 @@ class MessageCreateView(generics.CreateAPIView):
 
         query = request.data.get("query")
 
+        # Fetch conversation history
+        conversation_history = Message.objects.filter(thread=thread).order_by('created_at')
+        history_text = "\n".join([json.loads(msg.message_text)['query'] + "\n" + json.loads(msg.message_text)['response'] for msg in conversation_history])
+
+        # Combine history with the current query
+        combined_query = history_text + "\nUser: " + query  # Make sure to label the speaker for clarity
+
+        # Debug: print combined_query to check if history is correct
+        print("Combined Query for db_chain:", combined_query)
+
+        # Call db_chain with the combined_query to consider past conversation
+        response = db_chain(combined_query)  # Assuming db_chain can handle this format
+
+        # Debug: print response to check what db_chain returns
+        print("Response from db_chain:", response)
+
         # Create a mutable copy of request.data
         mutable_data = request.data.copy()
 
         # Add the thread and message_text to the mutable_data
         mutable_data["thread"] = thread.pk
 
-        # Call db_chain to get the response
-        response = db_chain(query)
-
         # Structure the message_text for easy mapping in React
         message_text = {
             'query': query,
-            'result': response.get("result", "No result found")
+            'response': response.get("result", "No result found")
         }
 
         # Set the message_text field with the structured data
@@ -157,6 +169,7 @@ class MessageCreateView(generics.CreateAPIView):
 
         headers = self.get_success_headers(serializer.data)
         return Response({"message": "Message created", "data": serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class MessageListView(generics.ListAPIView):
     serializer_class = MessageSerializer
