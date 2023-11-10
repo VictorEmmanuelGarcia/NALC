@@ -11,12 +11,13 @@ import json
 from .models import researchpaper, Thread, Message, User
 from .serializers import ThreadCreateSerializer
 from rest_framework import generics, status
-from .serializers import ThreadSerializer, MessageSerializer, UserCreateSerializer, UserLoginSerializer
+from .serializers import ThreadSerializer, MessageSerializer, UserCreateSerializer, UserLoginSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+
 
 os.environ["OPENAI_API_KEY"] = "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"
 # Create the SQLDatabase instance with the MySQL connection URI
@@ -85,6 +86,7 @@ def upload_and_replace_data(request):
 # Thread Views (CRUD)
 class ThreadListCreateView(generics.ListCreateAPIView):
     queryset = Thread.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -94,6 +96,7 @@ class ThreadListCreateView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.validated_data['user'] = self.request.user
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response({"message": "Thread created", "data": serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
@@ -101,6 +104,7 @@ class ThreadListCreateView(generics.ListCreateAPIView):
 class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Thread.objects.all()
     serializer_class = ThreadSerializer
+    permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -116,6 +120,7 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class ThreadListView(generics.ListAPIView):
     serializer_class = ThreadSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Retrieve all threads
@@ -125,6 +130,7 @@ class ThreadListView(generics.ListAPIView):
 class MessageCreateView(generics.CreateAPIView):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         thread_id = request.data.get("thread_id")
@@ -175,6 +181,7 @@ class MessageCreateView(generics.CreateAPIView):
 
 class MessageListView(generics.ListAPIView):
     serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Get the thread_id from the URL parameter
@@ -199,6 +206,7 @@ class UserLoginView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        permission_classes = [AllowAny]
 
         user = serializer.validated_data['user']
 
@@ -213,6 +221,15 @@ class UserLoginView(APIView):
             'email': user.email,
             'name': user.name,
             'access_token': access_token,
+            'is_superuser': serializer.validated_data['is_superuser'],
         }
         
         return Response(response_data, status=status.HTTP_200_OK)
+
+class UserDetailsWithThreadsView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Retrieve the authenticated user
+        return self.request.user
