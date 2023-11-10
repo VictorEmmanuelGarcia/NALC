@@ -1,8 +1,27 @@
-.chat-history{
-    padding: 15px;
+
+
+.chat-sidebar {
     flex: 0.2;
+    padding: 15px;
     background-color: #841818;
-}
+  }
+  
+  .chat-input {
+    flex: 0.8;
+    padding: 15px;
+    background-color: #ffffff;
+    overflow-y: auto;
+  }
+  
+  .inputForm {
+    position: fixed;
+    bottom: 20px;
+    left: 60%;
+    transform: translateX(-50%);
+    width: 50%;
+    padding: 10px;
+    z-index: 999;
+  }
 
 .newChatBtn{
     width: 100%;
@@ -14,18 +33,6 @@
     left: 2%;
 }
 
-.inputForm {
-    position: fixed;
-    bottom: 20px;
-    left: 60%;
-    transform: translateX(-50%); /* Center horizontally */
-    width: 50%; /* Set the width to 80% of the viewport width */
-    padding: 10px;
-    z-index: 999;
-}
-
 .inputForm input{
     border: 2px #841818 solid;
-}
-  
-  
+} 
