@@ -67,6 +67,7 @@ class researchpaper(models.Model):
 class Thread(models.Model):
     thread_id = models.AutoField(primary_key=True)
     thread_name = models.CharField(max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='threads')
 
 class Message(models.Model):
     message_id = models.AutoField(primary_key=True)
