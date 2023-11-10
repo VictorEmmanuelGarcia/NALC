@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import researchpaper, Thread, Message, User
 from django.contrib.auth import authenticate
 from django.core.validators import EmailValidator
-
+from django.contrib.auth.hashers import make_password
 
 # ResearchPaper Serializer
 class ResearchPaperSerializer(serializers.ModelSerializer):
@@ -22,8 +22,6 @@ class ThreadCreateSerializer(serializers.ModelSerializer):
         fields = ['thread_name']
 
 class ThreadSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.email')
-
     class Meta:
         model = Thread
         fields = '__all__'
@@ -37,11 +35,10 @@ class MessageSerializer(serializers.ModelSerializer):
 
 # User Serializers
 class UserSerializer(serializers.ModelSerializer):
-    threads = ThreadSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'threads']
+        fields = ['email', 'name']
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
