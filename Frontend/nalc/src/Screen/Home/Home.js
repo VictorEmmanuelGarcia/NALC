@@ -3,7 +3,7 @@ import React , {useState , useEffect} from 'react';
 import axios from 'axios';
 import './Home.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPaperPlane , faPlus , faRightFromBracket, faRobot , faUser} from '@fortawesome/free-solid-svg-icons'
+import { faPaperPlane , faPlus , faRightFromBracket, faRobot , faUser, faPen, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 function Home() {
     const [input, setInput] = useState('');
@@ -12,6 +12,9 @@ function Home() {
     const [threadId , setThreadId] = useState('');
     const [chatMsg , setChatMsg] = useState([]);
     const reversedChats = chats.slice().reverse();
+    const [editModes, setEditModes] = useState(Array(reversedChats.length).fill(false));
+    const [tempName, setTempName] = useState('');
+    const [selectedThread, setSelectedThread] = useState(null); // Track the selected thread
 
     const handleInputChange = (identifier) => (e) => {
       if (identifier === "input") {
@@ -41,9 +44,9 @@ function Home() {
         let text = messageText.response; // Extracting 'result' from JSON string
   
         // Assuming the text is a research paper string, split it into an array
-        if (text) {
-          text = text.split('\\n').filter(Boolean);
-        }
+        // if (text) {
+        //   text = text.split('\\n').filter(Boolean);
+        // }
   
         return {
           user,
@@ -77,10 +80,48 @@ function Home() {
       setThreadId(id, () => {
         fetchMsg();
       });      
+      setSelectedThread(threadId)
       console.log(response.data);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleEditChat = async (id, index) => {
+    try {
+      // Use a callback function to get the latest value of tempName
+      await axios.put(`http://127.0.0.1:8000/api/threads/${id}/`, {
+        thread_name: tempName,
+      });
+  
+      console.log(`Chat with id ${id} edited to ${tempName}`);
+      setTempName('');
+      const newEditModes = [...editModes];
+      newEditModes[index] = false;
+      setEditModes(newEditModes);
+      fetchChats();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeleteChat = async (id) => {
+    try {
+      const response = await axios.delete(`http://127.0.0.1:8000/api/threads/${id}/`);
+      fetchChats();     
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const toggleEditMode = (index, threadName) => {
+    // Create a copy of the editModes array and toggle the edit mode for the specific item
+    const newEditModes = [...editModes];
+    newEditModes[index] = !newEditModes[index];
+  
+    setTempName(threadName);
+    setEditModes(newEditModes);
   };
   
   useEffect(() => {
@@ -150,37 +191,61 @@ function Home() {
         </button>
         <br/>
         <br/>
-        <div style={{ overflowY: 'scroll', height: '600px' }}>
-          {reversedChats.map(chat => (
-            <div key={chat.thread_id}>
+        <div style={{ overflowY: 'auto', height: '700px' }}>
+        {reversedChats.map((chat, index) => (
+          <div key={chat.thread_id} style={{ position: 'relative' }}>
+            <button
+              className="btn btn-warning btn-lg"
+              role="button"
+              aria-disabled="true"
+              style={{ width: '100%', display: 'block', marginBottom: '10px' }}
+              onClick={() => handleChat(chat.thread_id)}
+            >
+              {editModes[index] ? (
+                <input
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                />
+              ) : (
+                <span>{chat.thread_name}</span>
+              )}
+            </button>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', position: 'absolute', top: 0, right: 0  }}>
               <button
-                className="btn btn-warning"
-                role="button"
-                aria-disabled="true"
-                style={{ width: '100%', display: 'block', marginBottom: '10px' }}
-                onClick={() => handleChat(chat.thread_id)}
+                className="btn btn-transparent btn-lg"
+                style={{ marginRight: '0px' }}
+                onClick={() => (editModes[index] ? handleEditChat(chat.thread_id, index) : toggleEditMode(index, chat.thread_name))}
               >
-                {chat.thread_name}
+                {editModes[index] ? <FontAwesomeIcon icon={faCheck} style={{color: "#541212",}} /> : <FontAwesomeIcon icon={faPen} style={{color: "#541212",}} />}
+              </button>
+              <button
+                className="btn btn-transparent btn-lg"
+                onClick={() => handleDeleteChat(chat.thread_id)}
+              >
+                <FontAwesomeIcon icon={faTrash} style={{color: "#541212",}} />
               </button>
             </div>
-          ))}
+          </div>
+        ))}
         </div>
       </div>
       {/* Convo Page */}
       <div className="chat-input">
         <div className='convo'>
-          <div style={{ overflowY: 'scroll', height: '600px' }}>
+          <div className = "convo-message" style={{ overflowY: 'auto', height: '700px', width: '1100px', alignItems: 'center' }}>
             {chatMsg.map((message, index) => (
               <div key={index} style={{ marginBottom: '10px', padding: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', fontSize: '20px' }}>
                 <FontAwesomeIcon icon={faUser} style={{ color: "#000000", marginRight: '5px', textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)' }} /> : {message.user}<br />
                 <br />
-                <FontAwesomeIcon icon={faRobot} style={{ color: "rgb(132, 24, 24)", marginRight: '5px', textShadow: '1px 1px 1px rgba(132, 24, 24, 0.5)' }} /> : 
+                <FontAwesomeIcon icon={faRobot} style={{ color: "rgb(132, 24, 24)", marginRight: '5px', textShadow: '1px 1px 1px rgba(132, 24, 24, 0.5)' }} /> :
                 {Array.isArray(message.text) ? (
                   message.text.map((paper, i) => (
                     <div key={i}>{paper}</div>
                   ))
                 ) : (
-                  message.text
+                  " " + message.text
                 )}
               </div>
             ))}
@@ -188,7 +253,8 @@ function Home() {
         </div>
         <div className='inputForm'>
             <div className="input-group mb-1">
-                <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" value={input} onChange={handleInputChange("input")} onKeyDown={(e) => {
+                <input type="text" className="form-control" aria-label="Recipient's username" aria-describedby="button-addon2" value={input} onChange={handleInputChange("input")}
+                onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       handleSendMessage();

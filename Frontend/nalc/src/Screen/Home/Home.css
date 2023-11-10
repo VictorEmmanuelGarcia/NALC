@@ -36,3 +36,12 @@
 .inputForm input{
     border: 2px #841818 solid;
 } 
+
+.convo {
+  display: flex;
+}
+
+.convo-message {
+  align-items: center;
+  margin: 0 auto;
+}
