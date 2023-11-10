@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views  # Import your views module
-from .views import ThreadListCreateView, ThreadDetailView, MessageCreateView, MessageListView, ThreadListView, upload_and_replace_data, UserRegisterView, UserLoginView, UserDetailsWithThreadsView
+from .views import ThreadListCreateView, ThreadDetailView, MessageCreateView, MessageListView, ThreadListView, upload_and_replace_data, UserRegisterView, UserLoginView, UserDetailsWithThreadsView, UserUpdateView
 
 urlpatterns = [
     # Other URL patterns
@@ -13,6 +13,5 @@ urlpatterns = [
     path('api/users/register/', UserRegisterView.as_view(), name='user-register'),
     path('api/users/login/', UserLoginView.as_view(), name='user-login'),
     path('api/users/details/', UserDetailsWithThreadsView.as_view(), name='user-details'),
-
-
+    path('api/users/update/', UserUpdateView.as_view(), name='user-update'),
 ]

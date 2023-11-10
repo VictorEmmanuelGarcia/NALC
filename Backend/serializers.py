@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import researchpaper, Thread, Message, User
 from django.contrib.auth import authenticate
+from django.core.validators import EmailValidator
+
 
 # ResearchPaper Serializer
 class ResearchPaperSerializer(serializers.ModelSerializer):
@@ -84,3 +86,30 @@ class UserLoginSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Must include 'email' and 'password'.")
 
         return data
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=False,
+        validators=[EmailValidator()],
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'name', 'is_active', 'password']
+
+    def validate_email(self, value):
+        # Custom email validation logic for updates if needed
+        return value
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data.get('email', instance.email)
+        instance.name = validated_data.get('name', instance.name)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+
+        # Update password if provided
+        password = validated_data.get('password')
+        if password:
+            instance.password = make_password(password)
+
+        instance.save()
+        return instance
