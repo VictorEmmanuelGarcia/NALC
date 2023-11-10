@@ -8,13 +8,15 @@ import os
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 import json
-from .models import researchpaper, Thread, Message
+from .models import researchpaper, Thread, Message, User
 from .serializers import ThreadCreateSerializer
 from rest_framework import generics, status
-from .serializers import ThreadSerializer, MessageSerializer
+from .serializers import ThreadSerializer, MessageSerializer, UserCreateSerializer, UserLoginSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 
 os.environ["OPENAI_API_KEY"] = "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"
 # Create the SQLDatabase instance with the MySQL connection URI
@@ -181,3 +183,36 @@ class MessageListView(generics.ListAPIView):
         # Retrieve all messages associated with the specified thread
         queryset = Message.objects.filter(thread_id=thread_id)
         return queryset
+
+class UserRegisterView(generics.CreateAPIView):
+    serializer_class = UserCreateSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class UserLoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+
+        user = serializer.validated_data['user']
+        user = serializer.validated_data['user']
+        
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        response_data = {
+            'message': 'Login successful',
+            'email': user.email,
+            'name': user.name,
+            'access_token': access_token,
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
