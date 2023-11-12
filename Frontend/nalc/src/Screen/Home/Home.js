@@ -18,6 +18,7 @@ function Home() {
     const [loading, setLoading] = useState(false);
     const [chatCreated, setChatCreated] = useState(false);
 
+    axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
     const handleInputChange = (identifier) => (e) => {
       if (identifier === "input") {
         setInput(e.target.value);
@@ -84,6 +85,7 @@ function Home() {
       setChatName(nameToUse);
       const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
         thread_name: nameToUse,
+        user: 1,
       });
       setChatName('');   
       fetchChats(); // Refresh the chat list after creating a new chat
