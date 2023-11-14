@@ -3,7 +3,8 @@ import React , {useState , useEffect} from 'react';
 import axios from 'axios';
 import './Home.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPaperPlane , faPlus , faRightFromBracket, faRobot , faUser, faPen, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons'
+import { faPaperPlane , faPlus, faRobot , faUser, faPen, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons'
+import UserOption from '../../Components/UserOption';
 
 function Home() {
     const [input, setInput] = useState('');
@@ -17,8 +18,57 @@ function Home() {
     const [selectedThread, setSelectedThread] = useState('');
     const [loading, setLoading] = useState(false);
     const [chatCreated, setChatCreated] = useState(false);
+    const [userData , setUserData] = useState([]);
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
+  // Set the initial token and headers
+  axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
+
+  // Set the session timeout duration (30 minutes in milliseconds)
+  const sessionTimeoutDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+  // Function to redirect the user to the login page
+  const redirectToLogin = () => {
+    window.location.href = '/';
+  };
+
+  // Function to reset the session timeout
+  const resetSessionTimeout = () => {
+    clearTimeout(sessionTimeout);
+    sessionTimeout = setTimeout(redirectToLogin, sessionTimeoutDuration);
+  };
+
+  // Set the initial session timeout
+  let sessionTimeout = setTimeout(redirectToLogin, sessionTimeoutDuration);
+
+  // Attach an event listener to reset the session timeout on user activity
+  document.addEventListener('mousemove', resetSessionTimeout);
+  document.addEventListener('keydown', resetSessionTimeout);
+
+  // You may need to adjust the events based on your application's specific requirements
+
+  // Example of using Axios interceptors to handle HTTP response errors
+  axios.interceptors.response.use(
+    (response) => {
+      // If the request is successful, reset the session timeout
+      resetSessionTimeout();
+      return response;
+    },
+    (error) => {
+      // If there's an error in the request, you can handle it here
+      // For example, you might want to check if the error status is 401 (Unauthorized) and redirect to login
+      if (error.response && error.response.status === 401) {
+        redirectToLogin();
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+  
+    redirectToLogin();
+  };
+
     const handleInputChange = (identifier) => (e) => {
       if (identifier === "input") {
         setInput(e.target.value);
@@ -27,6 +77,16 @@ function Home() {
       }
       // Add more conditions for additional inputs
   };
+
+  const fetchUserData = async () => {
+      try{
+        const response = await axios.get('http://127.0.0.1:8000/api/users/details/');
+        setUserData(response.data);
+        console.log(userData);
+      } catch(error){
+        console.error(error);
+      }
+  }
 
   const fetchChatsAndData = async (id) => {
     try {
@@ -85,7 +145,7 @@ function Home() {
       setChatName(nameToUse);
       const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
         thread_name: nameToUse,
-        user: 1,
+        // user: 1,
       });
       setChatName('');   
       fetchChats(); // Refresh the chat list after creating a new chat
@@ -151,8 +211,18 @@ function Home() {
   }, [threadId]);
 
   useEffect(() => {
-    fetchChats(); // Fetch chats on component mount
-  }, []);
+    const fetchData = async () => {
+      try {
+        await fetchUserData();
+        await fetchChats();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+    console.log(userData);
+  }, []); 
+  
 
   const handleSendMessage = async () => {
     if (input.trim() === '') {
@@ -185,8 +255,6 @@ function Home() {
     }
   };
   
-  
-
   return (
     <div className="container-fluid gx-0">
       {/* Modal */}
@@ -221,10 +289,9 @@ function Home() {
             <FontAwesomeIcon icon={faPlus} style={{ color: "#ffffff" }} />
             <span style={{ marginLeft: "5px" }}>New Chat</span>
         </button>
-        <button class="btn  logoutBtn" type="button">
-            <FontAwesomeIcon icon={faRightFromBracket} style={{color: "#ffffff",}} />
-            <span style={{ marginLeft: "5px" , color: "white"}}>Log Out</span>
-        </button>
+        <div className='logoutBtn d-grid gap-2 col-2 mx-auto'>
+          <UserOption class="logoutBtn" userData = {userData} Logout={handleLogout}/>
+        </div>
         <br/>
         <br/>
         <div style={{ overflowY: 'auto', height: '75%' }}>

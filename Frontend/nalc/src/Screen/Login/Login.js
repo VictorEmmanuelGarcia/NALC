@@ -33,7 +33,7 @@ function Login() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      alert("An error occurred during login. Please try again.");
+      alert("Email or Password is incorrect");
     }
   };
 
