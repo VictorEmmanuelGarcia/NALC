@@ -93,10 +93,12 @@ class ThreadListCreateView(generics.ListCreateAPIView):
             return ThreadCreateSerializer
         return ThreadSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data['user'] = self.request.user
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response({"message": "Thread created", "data": serializer.data}, status=status.HTTP_201_CREATED, headers=headers)
@@ -117,6 +119,14 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({"message": "Thread deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+class DeleteAllThreads(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        # Delete all threads
+        Thread.objects.all().delete()
+        return Response({"message": "All threads deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 class UserThreadListView(generics.ListAPIView):
     serializer_class = ThreadSerializer
