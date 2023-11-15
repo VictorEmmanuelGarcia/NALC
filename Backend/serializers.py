@@ -26,7 +26,6 @@ class ThreadSerializer(serializers.ModelSerializer):
         model = Thread
         fields = '__all__'
 
-
 # Message Serializers
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
