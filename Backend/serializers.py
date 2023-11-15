@@ -19,7 +19,7 @@ class ResearchPaperImportSerializer(serializers.Serializer):
 class ThreadCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thread
-        fields = ['thread_name']
+        fields = '__all__'
 
 class ThreadSerializer(serializers.ModelSerializer):
     class Meta:

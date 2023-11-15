@@ -1,22 +1,21 @@
 .container-fluid {
     display: flex;
-    height: 100vh;
 }
   
 .title {
-    flex: 1;
     background-color: #FFF4C5;
     color: black;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 25px;
 }
 
 .logo img{
     margin: auto;
     height: 350px; 
-    width: 350px; 
+    width: 375px; 
 }
 
 .title h1{

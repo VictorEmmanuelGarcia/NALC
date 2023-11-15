@@ -30,7 +30,6 @@
 .logoutBtn{
     position: fixed;
     bottom: 20px;
-    left: 2%;
 }
 
 .inputForm input{
@@ -44,4 +43,8 @@
 .convo-message {
   align-items: center;
   margin: 0 auto;
+}
+
+.title{
+  background-color: #ffffff;
 }
