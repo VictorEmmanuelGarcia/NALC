@@ -124,9 +124,9 @@ class DeleteAllThreads(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
-        # Delete all threads
-        Thread.objects.all().delete()
-        return Response({"message": "All threads deleted"}, status=status.HTTP_204_NO_CONTENT)
+        # Delete all threads associated with the user making the request
+        Thread.objects.filter(user=request.user).delete()
+        return Response({"message": "All threads deleted for the current user"}, status=status.HTTP_204_NO_CONTENT)
 
 class UserThreadListView(generics.ListAPIView):
     serializer_class = ThreadSerializer
