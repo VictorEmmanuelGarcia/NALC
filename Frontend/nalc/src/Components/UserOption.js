@@ -5,7 +5,7 @@ import {faRightFromBracket , faUser,  faTrash} from '@fortawesome/free-solid-svg
 
 class UserOption extends Component {
     render() {
-        const { userData , Logout} = this.props;
+        const { userData , Logout , DeleteAll} = this.props;
 
         return (
             <div className="btn-group dropup d-grid gap-2 col-6 mx-auto">
@@ -15,19 +15,19 @@ class UserOption extends Component {
                     <li>
                         <a class="dropdown-item" href="#">
                             <FontAwesomeIcon icon={faUser} style={{color: "#541212",}} />
-                            Profile
+                            {"  "}Profile
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" onClick={DeleteAll}>
                             <FontAwesomeIcon icon={faTrash} style={{color: "#541212",}} />
-                            Delete All Chat
+                            {"  "}Delete All Chat
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item" onClick={Logout}>
                             <FontAwesomeIcon icon={faRightFromBracket} style={{color: "#541212",}} />
-                            Logout
+                            {"  "}Logout
                         </a>
                     </li>
                 </ul>

@@ -44,18 +44,12 @@ function Home() {
   document.addEventListener('mousemove', resetSessionTimeout);
   document.addEventListener('keydown', resetSessionTimeout);
 
-  // You may need to adjust the events based on your application's specific requirements
-
-  // Example of using Axios interceptors to handle HTTP response errors
   axios.interceptors.response.use(
     (response) => {
-      // If the request is successful, reset the session timeout
       resetSessionTimeout();
       return response;
     },
     (error) => {
-      // If there's an error in the request, you can handle it here
-      // For example, you might want to check if the error status is 401 (Unauthorized) and redirect to login
       if (error.response && error.response.status === 401) {
         redirectToLogin();
       }
@@ -75,7 +69,6 @@ function Home() {
       } else if (identifier === "chat") {
         setChatName(e.target.value);
       }
-      // Add more conditions for additional inputs
   };
 
   const fetchUserData = async () => {
@@ -90,7 +83,7 @@ function Home() {
 
   const fetchChatsAndData = async (id) => {
     try {
-      const responseChats = await axios.get('http://127.0.0.1:8000/api/threads/');
+      const responseChats = await axios.get('http://127.0.0.1:8000/api/users/threads/');
       setChats(responseChats.data);
   
       if (id !== undefined) {
@@ -145,7 +138,6 @@ function Home() {
       setChatName(nameToUse);
       const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
         thread_name: nameToUse,
-        // user: 1,
       });
       setChatName('');   
       fetchChats(); // Refresh the chat list after creating a new chat
@@ -185,12 +177,21 @@ function Home() {
     }
   };
 
+  const handleDeleteAll = () => {
+    try{
+      const responde = axios.delete('http://127.0.0.1:8000/api/threads/delete-all/');
+      fetchChats();
+      setChatMsg([]);
+    }catch(error){
+      console.error(error);
+    }
+  }
+
   const handleDeleteChat = async (id) => {
     try {
       const response = await axios.delete(`http://127.0.0.1:8000/api/threads/${id}/`);
       fetchChats();     
       setChatMsg([]);
-      console.log(response.data);
     } catch (error) {
       console.error(error);
     }
@@ -269,13 +270,13 @@ function Home() {
               <form class="row g-3 needs-validation">
                 <div class="col">
                   <input type="text" class="form-control" id="validationCustom03" value={chatName} placeholder='Chat Name'required onChange={handleInputChange("chat")}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleCreateChat();
-                      window.location.reload();
-                    }
-                }}/>
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCreateChat();
+                        window.location.reload();
+                      }}}
+                  />
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onClick={handleCreateChat}>Create</button>
               </form>
@@ -290,7 +291,7 @@ function Home() {
             <span style={{ marginLeft: "5px" }}>New Chat</span>
         </button>
         <div className='logoutBtn d-grid gap-2 col-2 mx-auto'>
-          <UserOption class="logoutBtn" userData = {userData} Logout={handleLogout}/>
+          <UserOption class="logoutBtn" userData = {userData} Logout={handleLogout} DeleteAll = {handleDeleteAll}/>
         </div>
         <br/>
         <br/>

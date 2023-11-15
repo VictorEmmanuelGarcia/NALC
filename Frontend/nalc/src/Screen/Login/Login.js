@@ -72,18 +72,31 @@ function Login() {
         <br/>
         <div className='row'>
             <p>
-                It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. 
+                It is a long established fact that a reader will be distracted by 
+                the readable content of a page when looking at its layout. 
             </p>
         </div>
         <br/>
         <div className='row inputs'>
             <form>
                 <div className='inputField' style={{width: 370, height: 48, position: 'relative'}}>
-                    <input type="email" class="form-control" id="floatingInput" placeholder="Email" onChange={handleEmailChange}/>
+                    <input type="email" class="form-control" id="floatingInput" placeholder="Email" onChange={handleEmailChange} 
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleLogin();
+                        }}}
+                      />
                     <div style={{width: 6, height: 35, left: 0, top: 0, position: 'absolute', background: '#841818'}} />
                 </div>
                 <div className='inputField' style={{width: 370, height: 48, position: 'relative'}}>
-                    <input type="password" class="form-control" id="floatingInput" placeholder="Password" onChange={handlePwdChange}/>
+                    <input type="password" class="form-control" id="floatingInput" placeholder="Password" onChange={handlePwdChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleLogin();
+                        }}}
+                    />
                     <div style={{width: 6, height: 35, left: 0, top: 0, position: 'absolute', background: '#841818'}} />
                 </div>
                 <div class="d-grid gap-2 col-6 mx-auto">
