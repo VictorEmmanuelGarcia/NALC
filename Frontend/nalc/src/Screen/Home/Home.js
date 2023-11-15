@@ -5,6 +5,7 @@ import './Home.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane , faPlus, faRobot , faUser, faPen, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons'
 import UserOption from '../../Components/UserOption';
+import HomePage from '../../Components/HomePage';
 
 function Home() {
     const [input, setInput] = useState('');
@@ -19,6 +20,7 @@ function Home() {
     const [loading, setLoading] = useState(false);
     const [chatCreated, setChatCreated] = useState(false);
     const [userData , setUserData] = useState([]);
+    const [showHome , setShowHome] = useState(true);
 
   // Set the initial token and headers
   axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
@@ -153,6 +155,7 @@ function Home() {
 
   const handleChat = async (id) => {
     try {
+      setShowHome(false);
       fetchData(id);
     } catch (error) {
       console.error(error);
@@ -343,20 +346,24 @@ function Home() {
               <h2>{selectedThread}</h2>
             </div>
             <br/>
-            {chatMsg.map((message, index) => (
-              <div key={index} style={{ marginBottom: '10px', padding: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', fontSize: '20px' }}>
-                <FontAwesomeIcon icon={faUser} style={{ color: "#000000", marginRight: '5px', textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)' }} /> : {message.user}<br />
-                <br />
-                <FontAwesomeIcon icon={faRobot} style={{ color: "rgb(132, 24, 24)", marginRight: '5px', textShadow: '1px 1px 1px rgba(132, 24, 24, 0.5)' }} /> :
-                {Array.isArray(message.text) ? (
-                  message.text.map((paper, i) => (
-                    <div key={i}>{paper}</div>
-                  ))
-                ) : (
-                  " " + message.text
-                )}
-              </div>
-            ))}
+            {showHome ? (
+              <HomePage/>
+            ) : (
+              chatMsg.map((message, index) => (
+                <div key={index} style={{ marginBottom: '10px', padding: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', fontSize: '20px' }}>
+                  <FontAwesomeIcon icon={faUser} style={{ color: "#000000", marginRight: '5px', textShadow: '1px 1px 1px rgba(0, 0, 0, 0.1)' }} /> : {message.user}<br />
+                  <br />
+                  <FontAwesomeIcon icon={faRobot} style={{ color: "rgb(132, 24, 24)", marginRight: '5px', textShadow: '1px 1px 1px rgba(132, 24, 24, 0.5)' }} /> :
+                  {Array.isArray(message.text) ? (
+                    message.text.map((paper, i) => (
+                      <div key={i}>{paper}</div>
+                    ))
+                  ) : (
+                    " " + message.text
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div className='inputForm'>
