@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_rest_passwordreset',
 ]
 
 AUTH_USER_MODEL = 'Backend.User'
@@ -153,3 +154,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'nalcs723@gmail.com'
+EMAIL_HOST_PASSWORD = 'nalcSupportTeam2023'
+DEFAULT_FROM_EMAIL = 'nalcs723@gmail.com'

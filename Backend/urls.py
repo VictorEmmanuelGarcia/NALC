@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from . import views  # Import your views module
 from .views import ThreadListCreateView, ThreadDetailView, UserThreadListView, MessageCreateView, MessageListView, upload_and_replace_data, UserRegisterView, UserLoginView, UserUpdateView, UserDetailsView, DeleteAllThreads
+from django_rest_passwordreset.views import ResetPasswordRequestToken, ResetPasswordConfirm
 
 urlpatterns = [
     # Other URL patterns
@@ -15,4 +16,5 @@ urlpatterns = [
     path('api/users/login/', UserLoginView.as_view(), name='user-login'),
     path('api/users/details/', UserDetailsView.as_view(), name='user-details'),
     path('api/users/update/', UserUpdateView.as_view(), name='user-update'),
+    path('api/reset-password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 ]
