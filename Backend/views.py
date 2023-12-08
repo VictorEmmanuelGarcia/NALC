@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import serializers
 
 
 os.environ["OPENAI_API_KEY"] = "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"
@@ -210,14 +211,25 @@ class UserRegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         email = request.data.get('email', None)
-        if email and User.objects.filter(email=email).exists():
-            return Response({'error': 'Email is already in use.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        if email:
+            if User.objects.filter(email=email).exists():
+                # Email is already in use
+                return Response({'error': 'Email is already in use.'}, status=status.HTTP_409_CONFLICT)
+
+            serializer = self.get_serializer(data=request.data)
+            try:
+                serializer.is_valid(raise_exception=True)
+            except serializers.ValidationError as validation_error:
+                # Improper email format
+                return Response({'error': 'Invalid email format.', 'details': validation_error.detail}, status=status.HTTP_400_BAD_REQUEST)
+
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+        # Invalid request, email is required
+        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(APIView):
     def post(self, request, *args, **kwargs):
