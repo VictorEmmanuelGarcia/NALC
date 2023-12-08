@@ -181,15 +181,20 @@ function Home() {
   };
 
   const handleDeleteAll = () => {
-    try{
-      const responde = axios.delete('http://127.0.0.1:8000/api/threads/delete-all/');
-      fetchChats();
-      setChatMsg([]);
-    }catch(error){
+    try {
+      axios.delete('http://127.0.0.1:8000/api/threads/delete-all/')
+        .then(() => {
+          // Once the delete request is successful, fetch new data and update the state
+          fetchChats();
+          setChatMsg([]);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    } catch (error) {
       console.error(error);
     }
-  }
-
+  };
   const handleDeleteChat = async (id) => {
     try {
       const response = await axios.delete(`http://127.0.0.1:8000/api/threads/${id}/`);
