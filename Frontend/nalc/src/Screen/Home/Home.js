@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane , faPlus, faRobot , faUser, faPen, faCheck, faTrash} from '@fortawesome/free-solid-svg-icons'
 import UserOption from '../../Components/UserOption';
 import HomePage from '../../Components/HomePage';
+import { useNavigate } from 'react-router-dom';
 
 function Home() {
     const [input, setInput] = useState('');
@@ -21,6 +22,7 @@ function Home() {
     const [chatCreated, setChatCreated] = useState(false);
     const [userData , setUserData] = useState([]);
     const [showHome , setShowHome] = useState(true);
+    const navigate = useNavigate();
 
   // Set the initial token and headers
   axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
@@ -299,7 +301,7 @@ function Home() {
             <span style={{ marginLeft: "5px" }}>New Chat</span>
         </button>
         <div className='logoutBtn d-grid gap-2 col-2 mx-auto'>
-          <UserOption class="logoutBtn" userData = {userData} Logout={handleLogout} DeleteAll = {handleDeleteAll}/>
+          <UserOption userData={userData} Logout={handleLogout} DeleteAll={handleDeleteAll} navigate={navigate} />
         </div>
         <br/>
         <br/>
