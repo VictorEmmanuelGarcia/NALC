@@ -11,25 +11,37 @@ function Register() {
   const navigate = useNavigate();
 
   const handleRegister = async () => {
-    // Perform registration logic here, e.g., send a request to your server
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/users/register/', {
         email: email,
         password: password,
         name: name,
       });
-      if (response.status >= 200 && response.status < 300) {
-        // Login Successfull
+  
+      if (response.status === 201) {
+        // Registration Successful
         navigate('/');
-      } else {
-        // Login Failedd
-        alert("Please fill up all required form!");
       }
     } catch (error) {
-      console.error('Login failed:', error);
-      alert("An error occurred during Registration. Please try again.");
+      // Registration failed
+      if (error.response && error.response.status === 400) {
+        // Bad Request - Email validation error
+        alert('Please provide a valid email address.');
+  
+        // Additional: Log the details of the validation error to the console
+        if (error.response.data && error.response.data.details) {
+          // No console.log here
+        }
+      } else if (error.response && error.response.status === 409) {
+        // Conflict - Email already in use
+        alert('This email is already in use. Please use a different email.');
+      } else {
+        // Other errors
+        alert('An error occurred during registration. Please try again.');
+      }
     }
   };
+  
 
   const handleInputChange = (identifier) => (e) =>{
     if(identifier == 'email'){
