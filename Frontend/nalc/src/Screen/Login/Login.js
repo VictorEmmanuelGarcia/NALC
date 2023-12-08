@@ -25,11 +25,14 @@ function Login() {
         // Add the token to the headers for subsequent requests
         localStorage.setItem('authToken', authToken);
 
-        // Login Successfull
-        navigate('/home');
+        // Check if the user is a superuser
+        if (response.data.is_superuser) {
+          navigate('/admin'); // Redirect to the admin page if the user is a superuser
+        } else {
+          navigate('/home'); // Redirect to the home page for regular users
+        }
       } else {
-        // Login Failedd
-        alert("Email or Password is incorrect");
+        alert('Email or Password is incorrect');
       }
     } catch (error) {
       console.error('Login failed:', error);
