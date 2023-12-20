@@ -164,11 +164,11 @@ const UserProfile = () => {
               </div>
               <button className='btn-registered' onClick={handleSaveChanges}>
                 <FontAwesomeIcon icon={faCheck} style={{color: "#541212",}}/>
-                Save Changes
+                &nbsp; Save Changes
               </button>
               <button className='btn-registered' onClick={toggleEditMode}>
                 <FontAwesomeIcon icon={faXmark} style={{color: "#541212",}}/>
-                Cancel
+                &nbsp; Cancel
               </button>
             </div>
           ) : (
@@ -185,11 +185,11 @@ const UserProfile = () => {
               </div>
               <button className='btn-registered' onClick={toggleEditMode}>
                 <FontAwesomeIcon icon={faPenToSquare} style={{color: "#541212",}}/>
-                Edit
+                &nbsp; Edit
               </button>
               <button className='btn-registered' onClick={goBack}>
                 <FontAwesomeIcon icon={faRightToBracket} style={{color: "#541212",}}/>
-                Back
+                &nbsp; Back
               </button>
             </div>
           )}

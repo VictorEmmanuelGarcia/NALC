@@ -83,7 +83,7 @@ const AdminScreen = () => {
       <div className="top-left">
         <button className='replaceDataBtn' onClick={handleLogout}>
           <FontAwesomeIcon icon={faRightFromBracket} style={{color: "#541212",}} />
-          Logout
+          &nbsp; Logout
         </button>
       </div>
       <div className='container-fluidity'>
@@ -101,7 +101,7 @@ const AdminScreen = () => {
         <br />
         <button className='replaceDataBtn' type="submit">
           <FontAwesomeIcon icon={faUpload} />
-          Submit
+          &nbsp; Submit
         </button>
       </form>
     </div>
