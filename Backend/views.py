@@ -20,7 +20,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
 # Create the SQLDatabase instance with the MySQL connection URI
 db = SQLDatabase.from_uri(f"mysql://{settings.DATABASES['default']['USER']}:{settings.DATABASES['default']['PASSWORD']}@{settings.DATABASES['default']['HOST']}:{settings.DATABASES['default']['PORT']}/{settings.DATABASES['default']['NAME']}", include_tables=["backend_researchpaper"])
 
