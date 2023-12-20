@@ -12,7 +12,7 @@ function Home() {
     const [input, setInput] = useState('');
     const [chatName , setChatName] = useState('');    
     const [chats , setChats] = useState([]);
-    const [threadId , setThreadId] = useState('');
+    const [threadId , setThreadId] = useState(0);
     const [chatMsg , setChatMsg] = useState([]);
     const reversedChats = chats.slice().reverse();
     const [editModes, setEditModes] = useState(Array(reversedChats.length).fill(false));
@@ -79,7 +79,6 @@ function Home() {
       try{
         const response = await axios.get('http://127.0.0.1:8000/api/users/details/');
         setUserData(response.data);
-        console.log(userData);
       } catch(error){
         console.error(error);
       }
@@ -143,22 +142,33 @@ function Home() {
       const response = await axios.post('http://127.0.0.1:8000/api/threads/', {
         thread_name: nameToUse,
       });
-      setChatName('');   
-      fetchChats(); // Refresh the chat list after creating a new chat
-      fetchData(response.data.data.thread_id);
+  
       const newThreadId = response.data.data.thread_id;
+  
+      // Perform any necessary state updates or additional actions here
+      setChatName('');
       setThreadId(newThreadId);
       setChatCreated(true);
+  
+      // Fetch data and handle chat as needed
+      fetchChats();
+      fetchData(newThreadId);
+      handleChat(newThreadId);
+  
+      return newThreadId;
     } catch (error) {
       alert("Something Went Wrong, Try Again!");
       console.error('Error:', error);
+      throw error; // Rethrow the error to be caught by the caller
     }
   };
+  
 
   const handleChat = async (id) => {
     try {
       setShowHome(false);
       fetchData(id);
+      console.log("HandleChat" + id)
     } catch (error) {
       console.error(error);
     }
@@ -189,6 +199,8 @@ function Home() {
           // Once the delete request is successful, fetch new data and update the state
           fetchChats();
           setChatMsg([]);
+          setShowHome(true);
+          setSelectedThread("");
         })
         .catch(error => {
           console.error(error);
@@ -202,6 +214,8 @@ function Home() {
       const response = await axios.delete(`http://127.0.0.1:8000/api/threads/${id}/`);
       fetchChats();     
       setChatMsg([]);
+      setShowHome(true);
+      setSelectedThread("");
     } catch (error) {
       console.error(error);
     }
@@ -231,7 +245,6 @@ function Home() {
       }
     };
     fetchData();
-    console.log(userData);
   }, []); 
   
 
@@ -239,33 +252,40 @@ function Home() {
     if (input.trim() === '') {
       // Display error or handle accordingly
     } else {
-      //Create a new Chat when no Chat is selected
-        setLoading(true);
-
-        try {  
-          if (!chatCreated) {
-            await handleCreateChat("New Chat");
-          }
+      setLoading(true);
+  
+      try {
+        let currentThreadId;
+  
+        // Create a new Chat when no Chat is selected
+        if (!chatCreated) {
+          // Wait for the chat creation and get the chatId
+          currentThreadId = await handleCreateChat("New Chat");
+        } else {
+          currentThreadId = threadId;
+        }
+  
+        if (currentThreadId !== 0) {
           // Send the message
-          fetchDataAndMsg();
           await axios.post('http://127.0.0.1:8000/api/messages/create/', {
-            thread_id: threadId,
+            thread_id: currentThreadId,
             query: input,
           });
-    
-          // API call successful
-          fetchDataAndMsg(threadId);
+  
+          // Fetch data and messages after sending the message
+          await fetchDataAndMsg(currentThreadId);
           setInput('');
-        } catch (error) {
-          // Handle error
-          alert("Something Went Wrong, Try Again!");
-          console.log(error);
-        } finally {
-          setLoading(false);
         }
+      } catch (error) {
+        // Handle error
+        alert("Something Went Wrong, Try Again!");
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
-  
+    
   return (
     <div className="container-fluid gx-0">
       {/* Modal */}
