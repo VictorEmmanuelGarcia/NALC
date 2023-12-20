@@ -1,0 +1,64 @@
+.container-fluid {
+    display: flex;
+    height: 100vh;
+  }
+  
+.title-r {
+    flex: 1;
+    background-color: #ffffff;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-r img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: auto;
+    height: 200px; 
+    width: 235px; 
+}
+
+.title h1{
+    text-align: center;
+}
+
+
+.form {
+    margin: auto;
+    background-color: white;
+    text-align: center;
+    align-items: center;
+}
+
+.form p{
+    max-width:50%;
+    margin: auto;
+}
+
+.inputField{
+    margin: auto;
+}
+
+.haveAcc{
+    text-align: center;
+    font-size: large;
+}
+
+.text-maroon{
+    color: #841818;
+}
+
+.btn-registered{
+    color: #541212;
+    padding: 5px 5px;
+    border-radius: 10px;
+    margin: 0px 60px;
+}
+
+.big-space{
+    margin-bottom: 300px;
+}

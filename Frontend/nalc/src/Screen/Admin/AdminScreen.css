@@ -1,0 +1,45 @@
+.replaceDataBtn{
+    width: 100%;
+    padding: 5px 5px;
+    border-radius: 10px;
+}
+
+.container-fluidity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+    padding-top: 120px;
+  }
+
+.inputJson {
+    text-align: center;
+    color: white;
+    background-color: #841818;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.inputJson input[type="file"] {
+    margin-bottom: 20px;
+}
+
+.titleArea {
+    padding: 70px;
+    padding-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.top-left {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+  .fileInputLabel {
+    margin-right: 10px; /* Adjust this value as needed for the desired space */
+  }
