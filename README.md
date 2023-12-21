@@ -15,7 +15,7 @@ This application demonstrates a basic AI-powered search functionality, leveragin
 1. **Clone the repository:**
 
    ```bash
-   git clone GIT REPO
+   git clone https://github.com/adrianjaybarcenilla/NALC
    ```
 
 2. **Install dependencies:**
@@ -24,13 +24,13 @@ This application demonstrates a basic AI-powered search functionality, leveragin
 
      ```bash
      cd frontend
+     cd nalc
      npm install
      ```
 
    - **Backend:**
 
      ```bash
-     cd backend
      pip install -r requirements.txt
      ```
 
@@ -44,7 +44,6 @@ This application demonstrates a basic AI-powered search functionality, leveragin
 1. **Start the backend server:**
 
    ```bash
-   cd backend
    python manage.py runserver
    ```
 
@@ -52,6 +51,7 @@ This application demonstrates a basic AI-powered search functionality, leveragin
 
    ```bash
    cd frontend
+   cd nalc
    npm start
    ```
 
