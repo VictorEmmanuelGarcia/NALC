@@ -67,3 +67,17 @@ This application demonstrates a basic AI-powered search functionality, leveragin
    - `backend/`: Contains the Python Django backend code.
 - **Configuration:** Refer to the backend configuration file for details on API keys and other settings.
 - **Customization:** The application can be further customized by modifying the frontend components and backend logic.
+
+
+Resources:
+- Github: https://github.com/adrianjaybarcenilla/NALC
+- ClickUp: https://app.clickup.com/9008099400/v/s/90080484188
+- Google Drive: https://drive.google.com/drive/folders/1N0Uqc2n32aRsVrzOfOJbTvch_CD65-BP?usp=sharing
+
+- Developers
+     - Adrian Jay Barcenilla (0999 167 2854 - barcenillaadrianjay@gmail.com)
+     - Victor Emmanuel Garcia (0945 963 1880 - garciavictor881@gmail.com)
+     - John William Miones (0992 278 3477 - williammiones@gmail.com)
+     - Timothy Janssen Taboada (0956 127 7535 - timjantaboada@gmail.com)
+     - Andre Lennard Uy (0923 174 2507 - andreuy90@gmail.com)
+       
